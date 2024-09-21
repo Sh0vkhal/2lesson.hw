@@ -2,88 +2,65 @@ from rest_framework import  serializers
 from rest_framework.renderers import JSONRenderer
 import io
 from rest_framework.parsers import JSONParser
-
-class Car:
-    def __init__(self, model):
-        self.model = model
-
-car = Car({"model":"BWM"})
+from .models import Car,Football,Ufc
 
 class CarSerializer(serializers.Serializer):
-    model = serializers.CharField(max_length=30)
-    
-
-def convert_to_json():
-    serializer = CarSerializer(car)
-    print(serializer.data)
-    
-    json = JSONRenderer().render(serializer.data)
-    print(json)
-
-def json_to_python():
-    json = b'{"model":"BWM"}'
-    stream = io.BytesIO(json)
-    data = JSONParser().parse(stream)
-    serializer = CarSerializer(data=data)
-    serializer.is_valid()
-    print(serializer.validated_data)
+     model = serializers.CharField(max_length=50)
 
 
+     def create(self,validated_data):
+          return Car.objects.create(**validated_data)
+     
 
-class Football:
-    def __init__(self, name):
-        self.name = name
-      
-
-football = Football({"name":"Ronaldo"}) 
+     def update(self, instance, validated_data):
+          instance.model = validated_data.get('model', instance.model)
+          instance.save()
+          return instance
+     
+     def delete(self, instance):
+          instance.delete()
+          return True
+     
 
 
 
-class FootballSerializer(serializers.Serializer):
-    name = serializers.CharField(max_length=30)
+class FootballSerializer(serializers.ModelSerializer):
+     name = serializers.CharField(max_length=30)
+     team = serializers.CharField()
+
+
+     def create(self,validated_data):
+          return Football.objects.create(**validated_data)
+     
+
+     def update(self, instance, validated_data):
+          instance.name = validated_data.get('name', instance.name)
+          instance.team = validated_data.get('team', instance.team)
+          instance.save()
+          return instance
+     
+
+     def delete(self, instance):
+          instance.delete()
+          return True
+     
+
+
+
+class UfcSerializer(serializers.ModelSerializer):
+    fighter = serializers.CharField(max_length=50)
    
 
-def convert_to_json_2():
-    serializer = CarSerializer(football)
-    print(serializer.data)
+    def create(self, validated_data):
+         return Ufc.objects.create(**validated_data)
     
-    json = JSONRenderer().render(serializer.data)
-    print(json)
 
-def json_to_python_2():
-    json = b'{"name":"Cristiano"}'
-    stream = io.BytesIO(json)
-    data = JSONParser().parse(stream)
-    serializer = CarSerializer(data=data)
-    serializer.is_valid()
-    print(serializer.validated_data)
-
-
-class Ufc:
-  def __init__(self, fighter):
-      self.fighter = fighter
-
-
-  class UfcSerializer(serializers.Serializer):
-      fighter = serializers.CharField(max_length=50)    
-
-
-ufc = Ufc({"fighter":"Islam Makhachev"})      
-   
-
-def convert_to_json_3():
-    serializer = CarSerializer(ufc)
-    print(serializer.data)
+    def update(self, instance, validated_data):
+         instance.fighter = validated_data.get('fighter', instance.fighter)
+         instance.save()
+         return instance
     
-    json = JSONRenderer().render(serializer.data)
-    print(json)
 
-
-def json_to_python_2():
-    json = b'{"fighter":"Islam Makhachev"}'
-    stream = io.BytesIO(json)
-    data = JSONParser().parse(stream)
-    serializer = CarSerializer(data=data)
-    serializer.is_valid()
-    print(serializer.validated_data)
-    
+    def delete(self, instance):
+         instance.delete()
+         return True
